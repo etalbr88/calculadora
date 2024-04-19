@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custo do Produto por Colaborador</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #003D77; /* Azul escuro */
+    color: #fff; /* Texto branco */
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 90%;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    text-align: center;
+    color: #003D77; /* Azul claro */
+    margin-bottom: 20px;
+  }
+
+  label {
+    color: #003D77; /* Azul escuro */
+    font-size: 16px;
+    text-align: center;
+  }
+
+  input[type="text"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin: 10px 0 10px;
+    border: 1px solid #003D77; /* Azul escuro */
+    border-radius: 5px;
+    font-size: 25px;
+    text-align: center;
+    color: #FF0000; /* Vermelho */
+    background-color: rgba(0, 61, 119, 0.1); /* Azul escuro transparente */
+  }
+
+  input[type="text"]:focus {
+    outline: none;
+    border-color: #B9E5FB; /* Azul claro */
+  }
+
+  #custoPorColaboradorLabel {
+    color: #003D77; /* Azul escuro */
+  }
+
+  #custoPorColaborador {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 20px;
+    color: #FF0000; /* Vermelho */
+  }
+
+  .legenda {
+    font-size: 12px;
+    color: #003D77; /* Azul escuro */
+    text-align: center;
+    margin-top: 5px;
+  }
+
+  .speechButton {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #B9E5FB; /* Azul claro */
+    color: #003D77; /* Azul escuro */
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .fraseAleatoria {
+    font-size: 14px;
+    color: #003D77; /* Azul escuro */
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .alerta {
+    display: none;
+    background-color: #FFFF00; /* Amarelo */
+    color: #003D77; /* Azul escuro */
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .mensagemTopo {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+    color: #B9E5FB; /* Azul claro */
+    max-width: 450px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 768px) {
+    .container {
+      max-width: 400px;
+    }
+
+    input[type="text"] {
+      width: calc(100% - 22px);
+    }
+  }
+</style>
+<script>
+  var synth = window.speechSynthesis;
+  var speaking = false;
+  var utterThis;
+
+  var frasesAleatorias = [
+    "Pense bem, você precisa comprar isso mesmo?",
+    "Será que não há uma opção mais econômica?",
+    "Considere suas prioridades antes de tomar uma decisão.",
+    "Você já fez as contas para ver se realmente compensa?",
+    "Essa compra está de acordo com seu orçamento?",
+    "Talvez seja melhor economizar um pouco mais antes de comprar.",
+    "Lembre-se de verificar se essa compra é realmente necessária.",
+    "Analise se você realmente precisa desse produto agora.",
+    "Leve em consideração os possíveis gastos extras antes de decidir.",
+    "Você já pesquisou se esse é o melhor preço disponível?",
+    "Não se esqueça de verificar as condições de pagamento.",
+    "Considere se esse produto trará benefícios suficientes para o seu investimento.",
+    "Será que você não está se deixando levar pela emoção?",
+    "Talvez seja melhor esperar um pouco antes de fazer essa compra.",
+    "Lembre-se de pensar a longo prazo antes de decidir.",
+    "Você já verificou se esse alimento é saudável?",
+    "Considere o impacto desse alimento na sua saúde antes de comprá-lo.",
+    "Prefira alimentos frescos e naturais sempre que possível.",
+    "Evite alimentos processados e ricos em açúcares e gorduras.",
+    "Leia os rótulos dos produtos e escolha os mais saudáveis.",
+    "Cuidado com as promoções que podem comprometer sua saúde.",
+    "Priorize alimentos ricos em nutrientes e vitaminas.",
+    "Mantenha uma dieta equilibrada para garantir sua saúde e bem-estar.",
+    "Não se deixe influenciar apenas pelo sabor, pense na qualidade dos alimentos.",
+    "Avalie se esse alimento contribuirá para seus objetivos de saúde e fitness.",
+    "Seja consciente ao escolher o que colocar no seu carrinho de compras."
+  ];
+
+  function calcularCustoPorColaborador() {
+    var valorDoProduto = parseFloat(document.getElementById("valorProduto").value.replace(",", "."));
+    
+    if (isNaN(valorDoProduto)) {
+      alert("Por favor, insira um valor numérico válido.");
+      return;
+    }
+    
+    var custoPorColaborador = valorDoProduto * 0.1795;
+    
+    document.getElementById("custoPorColaborador").innerHTML = "Vai custar para você: R$" + custoPorColaborador.toFixed(2).replace(".", ",");
+    document.getElementById("legenda").innerHTML = "Custo proporcional com base no valor pago em reais pelo colaborador no momento da recarga.";
+    falarResultado();
+    exibirFraseAleatoria();
+    exibirAlerta();
+  }
+
+  function falarResultado() {
+    if (synth.speaking && speaking) {
+      synth.cancel(); // Interrompe a fala anterior antes de iniciar uma nova fala
+    }
+
+    var resultado = document.getElementById("custoPorColaborador").textContent;
+    utterThis = new SpeechSynthesisUtterance(resultado);
+    utterThis.lang = 'pt-BR';
+
+    synth.speak(utterThis);
+    speaking = true;
+
+    // Define speaking como false após a fala ser concluída
+    utterThis.onend = function(event) {
+      speaking = false;
+    };
+  }
+
+  function exibirFraseAleatoria() {
+    var indice = Math.floor(Math.random() * frasesAleatorias.length);
+    var fraseAleatoria = frasesAleatorias[indice];
+    document.getElementById("fraseAleatoria").innerHTML = fraseAleatoria;
+  }
+
+  function exibirAlerta() {
+    document.getElementById("alerta").style.display = "block";
+  }
+
+  function calcularGastoDiario() {
+    var dataAtual = new Date();
+    var mesAtual = dataAtual.toLocaleString('default', { month: 'long' });
+    var diasUteis = calcularDiasUteis(dataAtual.getFullYear(), dataAtual.getMonth());
+    var gastoDiario = 855.00 / diasUteis;
+
+    var mensagem = "<table style='margin: 0 auto;'>";
+    mensagem += "<tr><td>Estamos no mês de <span style='color: #00f0ff;'>" + mesAtual + "</span>.</td></tr>";
+    mensagem += "<tr><td>" + "Este mês possui <span style='color: #00f0ff; font-size: 10px;'> " + diasUteis + " dias úteis (excluindo sábados, domingos e feriados). </span></td></tr>";
+    mensagem += "<tr><td>Você pode gastar em média <span style='font-size: 20px; font-weight: bold; color: #00f0ff;'>R$" + gastoDiario.toFixed(2) + " por dia.</span></td></tr>";
+    mensagem += "</table>";
+
+    document.getElementById("mensagemTopo").innerHTML = mensagem;
+  }
+
+  function calcularDiasUteis(ano, mes) {
+    var dias = new Date(ano, mes + 1, 0).getDate();
+    var diasUteis = 0;
+
+    for (var dia = 1; dia <= dias; dia++) {
+      var data = new Date(ano, mes, dia);
+      if (data.getDay() > 0 && data.getDay() < 6) {
+        diasUteis++;
+      }
+    }
+
+    return diasUteis;
+  }
+
+  window.onload = function() {
+    calcularGastoDiario();
+  };
+</script>
+</head>
+<body>
+  <div class="mensagemTopo" id="mensagemTopo"></div>
+  <div class="container">
+    <h1>Calculadora Saporto</h1>
+    <label for="valorProduto">Valor do Produto (Digite abaixo sem R$):</label>
+    <input type="text" id="valorProduto" name="valorProduto">
+    <button class="speechButton" onclick="calcularCustoPorColaborador()">Calcular</button>
+    <div id="custoPorColaborador"></div>
+    <div id="legenda" class="legenda"></div>
+    <div class="alerta" id="alerta">⚠️<span id="fraseAleatoria"></span></div>
+  </div>
+</body>
+</html>
